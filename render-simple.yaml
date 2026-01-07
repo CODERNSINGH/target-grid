@@ -1,0 +1,29 @@
+services:
+  # Backend API Service
+  - type: web
+    name: targetgrid-api
+    env: node
+    plan: starter
+    buildCommand: cd backend && npm install && npm run db:generate && npm run db:push
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_YWRtS6hpK8zr@ep-gentle-frog-adzw90kg-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - key: CORS_ORIGIN
+        value: "*"
+
+  # Frontend Service  
+  - type: web
+    name: targetgrid-frontend
+    env: static
+    plan: starter
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: targetgrid-api
+          property: url
